@@ -1,6 +1,7 @@
 package com.nadetdev.springbatch.config;
 
 import com.nadetdev.springbatch.listener.FirstJobListener;
+import com.nadetdev.springbatch.listener.FirstStepListener;
 import com.nadetdev.springbatch.service.SecondTasklet;
 
 import org.springframework.batch.core.Job;
@@ -29,7 +30,11 @@ public class SampleJob {
 	private SecondTasklet secondTasklet;
 	
 	@Autowired
-	FirstJobListener firstJobListener;
+	private FirstJobListener firstJobListener;
+	
+	@Autowired
+	private FirstStepListener firstStepListener; 
+
 
 	@Bean
 	public Job firstJob() {
@@ -47,6 +52,7 @@ public class SampleJob {
 
 		return setBuilderFactory.get("First Step")
 				.tasklet(firstTask())
+				.listener(firstStepListener)
 				.build();
 	}
 
@@ -58,6 +64,7 @@ public class SampleJob {
 			public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
 				System.out.println("This is first Tasklet step");
+				System.out.println("SEC = " + chunkContext.getStepContext().getStepExecutionContext());
 				return RepeatStatus.FINISHED;
 			}
 		};
