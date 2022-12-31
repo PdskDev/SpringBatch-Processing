@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableBatchProcessing
-@ComponentScan("com.nadetdev.springbatch.config")
+@ComponentScan({"com.nadetdev.springbatch.config", "com.nadetdev.springbatch.service"})
 public class SpringBatchTutoApplication {
 
 	public static void main(String[] args) {
