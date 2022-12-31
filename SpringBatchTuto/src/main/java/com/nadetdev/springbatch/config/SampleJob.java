@@ -2,7 +2,10 @@ package com.nadetdev.springbatch.config;
 
 import com.nadetdev.springbatch.listener.FirstJobListener;
 import com.nadetdev.springbatch.listener.FirstStepListener;
+import com.nadetdev.springbatch.processor.FirstItemProcessor;
+import com.nadetdev.springbatch.reader.FirstItemReader;
 import com.nadetdev.springbatch.service.SecondTasklet;
+import com.nadetdev.springbatch.writer.FirstItemWriter;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -34,6 +37,15 @@ public class SampleJob {
 	
 	@Autowired
 	private FirstStepListener firstStepListener; 
+	
+	@Autowired
+	private FirstItemReader firstItemReader;
+	
+	@Autowired
+	private FirstItemProcessor firstItemProcessor;
+	
+	@Autowired
+	private FirstItemWriter firstItemWriter;
 
 
 	@Bean
@@ -45,7 +57,6 @@ public class SampleJob {
 				.next(secondStep())
 				.listener(firstJobListener)
 				.build();
-
 	}
 
 	private Step firstStep() {
@@ -76,6 +87,28 @@ public class SampleJob {
 				.tasklet(secondTasklet)
 				.build();
 	}
+	
+	@Bean
+	public Job secondJob() {
+
+		return jobBuilderFactory.get("Second Job")
+				.incrementer(new RunIdIncrementer())
+				.start(secondStep())
+				.next(firstChunckStep())
+				.build();
+	}
+	
+	
+	private Step firstChunckStep() {
+
+		return setBuilderFactory.get("First Chunk Step")
+				.<Integer, Long>chunk(4)
+				.reader(firstItemReader)
+				.processor(firstItemProcessor)
+				.writer(firstItemWriter)
+				.build();
+	}
+	
 	
 	/*
 	 * private Tasklet secondTask() {
