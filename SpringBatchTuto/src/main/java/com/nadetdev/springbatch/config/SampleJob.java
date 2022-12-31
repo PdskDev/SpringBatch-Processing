@@ -1,5 +1,6 @@
 package com.nadetdev.springbatch.config;
 
+import com.nadetdev.springbatch.listener.FirstJobListener;
 import com.nadetdev.springbatch.service.SecondTasklet;
 
 import org.springframework.batch.core.Job;
@@ -26,6 +27,9 @@ public class SampleJob {
 	
 	@Autowired
 	private SecondTasklet secondTasklet;
+	
+	@Autowired
+	FirstJobListener firstJobListener;
 
 	@Bean
 	public Job firstJob() {
@@ -34,6 +38,7 @@ public class SampleJob {
 				.incrementer(new RunIdIncrementer())
 				.start(firstStep())
 				.next(secondStep())
+				.listener(firstJobListener)
 				.build();
 
 	}
