@@ -93,8 +93,7 @@ public class SampleJob {
 
 		return jobBuilderFactory.get("Second Job")
 				.incrementer(new RunIdIncrementer())
-				.start(secondStep())
-				.next(firstChunckStep())
+				.start(firstChunckStep())
 				.build();
 	}
 	
