@@ -7,6 +7,9 @@ import com.nadetdev.springbatch.request.JobParamsRequest;
 import com.nadetdev.springbatch.service.JobService;
 
 import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.launch.JobExecutionNotRunningException;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
@@ -24,6 +27,9 @@ public class JobController {
 	@Autowired
 	JobService jobservice;
 	
+	@Autowired
+	JobOperator jobOperator;
+	
 	@GetMapping("/start/{jobName}")
 	public String startJob(@PathVariable String jobName, @RequestBody List<JobParamsRequest> jobParamsRequestList) 
 			throws JobExecutionAlreadyRunningException, 
@@ -32,8 +38,15 @@ public class JobController {
 		jobservice.startJob(jobName, jobParamsRequestList);
 		
 		return "Job Strated...";
+	}
+	
+	@GetMapping("/stop/{jobExecutionId}")
+	public String stopJob(@PathVariable Long jobExecutionId) throws NoSuchJobExecutionException, 
+	JobExecutionNotRunningException {
 		
+		jobOperator.stop(jobExecutionId);
 		
+		return "Job stopped...";
 	}
 
 }

@@ -103,7 +103,7 @@ public class SampleJob {
 		return setBuilderFactory.get("First Chunk Step")
 				.<Integer, Long>chunk(4)
 				.reader(firstItemReader)
-				.processor(firstItemProcessor)
+				//.processor(firstItemProcessor)
 				.writer(firstItemWriter)
 				.build();
 	}
