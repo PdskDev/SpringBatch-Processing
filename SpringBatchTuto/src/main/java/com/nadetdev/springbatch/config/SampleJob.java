@@ -132,7 +132,8 @@ public class SampleJob {
 			{
 				setLineTokenizer(new DelimitedLineTokenizer() {
 					{
-						setNames("id", "first_name", "last_name", "email");
+						setNames("id", "last_name", "first_name", "email");
+						setDelimiter(DELIMITER_COMMA);
 					}
 				});
 				
