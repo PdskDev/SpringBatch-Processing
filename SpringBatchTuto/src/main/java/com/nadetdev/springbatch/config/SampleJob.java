@@ -35,6 +35,8 @@ import org.springframework.core.io.PathResource;
 @Configuration
 public class SampleJob {
 
+	private static final String DELIMITER_COMMA = ",";
+
 	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
 
@@ -130,29 +132,39 @@ public class SampleJob {
 		
 		/*
 		 * flatFileItemReader.setResource(new FileSystemResource( new File(
-		 * "D:\\\\Devs\\\\LocalGitRepository\\\\SpringBatch-Processing-Udemy\\\\SpringBatchTuto\\\\InputFile\\\\students2.cs"
+		 * "D:\\\\Devs\\\\LocalGitRepository\\\\SpringBatch-Processing-Udemy\\\\SpringBatchTuto\\\\InputFile\\\\students.cs"
 		 * )));
 		 */
 		
 		flatFileItemReader.setResource(csvResourceFile);
 		
-		flatFileItemReader.setLineMapper(new DefaultLineMapper<StudentCsv>() {
-			{
-				setLineTokenizer(new DelimitedLineTokenizer() {
-					{
-						setNames("id", "last_name", "first_name", "email");
-						setDelimiter(DELIMITER_COMMA);
-					}
-				});
-				
-				setFieldSetMapper(new BeanWrapperFieldSetMapper<StudentCsv>() {
-					{
-						setTargetType(StudentCsv.class);
-					}
-				});
-		}
-			
-		});
+		/*
+		 * flatFileItemReader.setLineMapper(new DefaultLineMapper<StudentCsv>() { {
+		 * setLineTokenizer(new DelimitedLineTokenizer() { { setNames("id", "last_name",
+		 * "first_name", "email"); setDelimiter(DELIMITER_COMMA); } });
+		 * 
+		 * setFieldSetMapper(new BeanWrapperFieldSetMapper<StudentCsv>() { {
+		 * setTargetType(StudentCsv.class); } }); }
+		 * 
+		 * });
+		 */
+		
+		//Alternative code
+		DefaultLineMapper<StudentCsv> defaultLineMapper = new DefaultLineMapper<StudentCsv>();
+		
+		DelimitedLineTokenizer delimitedLineTokenizer = new DelimitedLineTokenizer();	
+		delimitedLineTokenizer.setNames("id", "last_name", "first_name", "email");
+		delimitedLineTokenizer.setDelimiter(DELIMITER_COMMA);
+		
+		defaultLineMapper.setLineTokenizer(delimitedLineTokenizer);
+		
+		BeanWrapperFieldSetMapper<StudentCsv> fieldSetMapper = new BeanWrapperFieldSetMapper<StudentCsv>();
+		fieldSetMapper.setTargetType(StudentCsv.class);
+		
+		defaultLineMapper.setFieldSetMapper(fieldSetMapper);
+		
+		flatFileItemReader.setLineMapper(defaultLineMapper);
+		//flatFileItemReader.setLinesToSkip(1);
 		
 		flatFileItemReader.setLinesToSkip(1);
 		
