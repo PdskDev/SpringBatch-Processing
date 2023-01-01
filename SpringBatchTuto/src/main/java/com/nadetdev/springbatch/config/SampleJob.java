@@ -35,50 +35,42 @@ import org.springframework.core.io.PathResource;
 @Configuration
 public class SampleJob {
 
-	private static final String DELIMITER_COMMA = ",";
+	//private static final String DELIMITER_COMMA = ",";
 
 	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
 
 	@Autowired
 	private StepBuilderFactory setBuilderFactory;
-	
+
 	@Autowired
 	private SecondTasklet secondTasklet;
-	
+
 	@Autowired
 	private FirstJobListener firstJobListener;
-	
+
 	@Autowired
-	private FirstStepListener firstStepListener; 
-	
+	private FirstStepListener firstStepListener;
+
 	@Autowired
 	private FirstItemReader firstItemReader;
-	
+
 	@Autowired
 	private FirstItemProcessor firstItemProcessor;
-	
+
 	@Autowired
 	private FirstItemWriter firstItemWriter;
-
 
 	@Bean
 	public Job firstJob() {
 
-		return jobBuilderFactory.get("First Job")
-				.incrementer(new RunIdIncrementer())
-				.start(firstStep())
-				.next(secondStep())
-				.listener(firstJobListener)
-				.build();
+		return jobBuilderFactory.get("First Job").incrementer(new RunIdIncrementer()).start(firstStep())
+				.next(secondStep()).listener(firstJobListener).build();
 	}
 
 	private Step firstStep() {
 
-		return setBuilderFactory.get("First Step")
-				.tasklet(firstTask())
-				.listener(firstStepListener)
-				.build();
+		return setBuilderFactory.get("First Step").tasklet(firstTask()).listener(firstStepListener).build();
 	}
 
 	private Tasklet firstTask() {
@@ -97,80 +89,80 @@ public class SampleJob {
 
 	private Step secondStep() {
 
-		return setBuilderFactory.get("Second Step")
-				.tasklet(secondTasklet)
-				.build();
+		return setBuilderFactory.get("Second Step").tasklet(secondTasklet).build();
 	}
-	
+
 	@Bean
 	public Job secondJob() {
 
-		return jobBuilderFactory.get("Second Job")
-				.incrementer(new RunIdIncrementer())
-				.start(firstChunckStep())
-				.build();
+		return jobBuilderFactory.get("Second Job").incrementer(new RunIdIncrementer()).start(firstChunckStep()).build();
 	}
-	
-	
+
 	private Step firstChunckStep() {
 
-		return setBuilderFactory.get("First Chunk Step")
-				.<StudentCsv, StudentCsv>chunk(3)
-				//.reader(firstItemReader)
+		return setBuilderFactory.get("First Chunk Step").<StudentCsv, StudentCsv>chunk(3)
+				// .reader(firstItemReader)
 				.reader(flatFileItemReader(null))
-				//.processor(firstItemProcessor)
-				.writer(firstItemWriter)
-				.build();
+				// .processor(firstItemProcessor)
+				.writer(firstItemWriter).build();
 	}
-	
+
 	@StepScope
 	@Bean
 	public FlatFileItemReader<StudentCsv> flatFileItemReader(
-			@Value("#{jobParameters['inputFile']}") FileSystemResource csvResourceFile){
-		
+			@Value("#{jobParameters['inputFile']}") FileSystemResource csvResourceFile) {
+
 		FlatFileItemReader<StudentCsv> flatFileItemReader = new FlatFileItemReader<>();
-		
+
 		/*
 		 * flatFileItemReader.setResource(new FileSystemResource( new File(
 		 * "D:\\\\Devs\\\\LocalGitRepository\\\\SpringBatch-Processing-Udemy\\\\SpringBatchTuto\\\\InputFile\\\\students.cs"
 		 * )));
 		 */
-		
+
 		flatFileItemReader.setResource(csvResourceFile);
-		
+
+		flatFileItemReader.setLineMapper(new DefaultLineMapper<StudentCsv>() {
+			{
+				setLineTokenizer(new DelimitedLineTokenizer() {
+					{
+						setNames("id", "last_name", "first_name", "email");
+						setDelimiter(DELIMITER_COMMA);
+					}
+				});
+
+				setFieldSetMapper(new BeanWrapperFieldSetMapper<StudentCsv>() {
+					{
+						setTargetType(StudentCsv.class);
+					}
+				});
+			}
+		});
+
+		// Alternative code
 		/*
-		 * flatFileItemReader.setLineMapper(new DefaultLineMapper<StudentCsv>() { {
-		 * setLineTokenizer(new DelimitedLineTokenizer() { { setNames("id", "last_name",
-		 * "first_name", "email"); setDelimiter(DELIMITER_COMMA); } });
+		 * DefaultLineMapper<StudentCsv> defaultLineMapper = new
+		 * DefaultLineMapper<StudentCsv>();
 		 * 
-		 * setFieldSetMapper(new BeanWrapperFieldSetMapper<StudentCsv>() { {
-		 * setTargetType(StudentCsv.class); } }); }
+		 * DelimitedLineTokenizer delimitedLineTokenizer = new DelimitedLineTokenizer();
+		 * delimitedLineTokenizer.setNames("id", "last_name", "first_name", "email");
+		 * delimitedLineTokenizer.setDelimiter(DELIMITER_COMMA);
 		 * 
-		 * });
+		 * defaultLineMapper.setLineTokenizer(delimitedLineTokenizer);
+		 * 
+		 * BeanWrapperFieldSetMapper<StudentCsv> fieldSetMapper = new
+		 * BeanWrapperFieldSetMapper<StudentCsv>();
+		 * fieldSetMapper.setTargetType(StudentCsv.class);
+		 * 
+		 * defaultLineMapper.setFieldSetMapper(fieldSetMapper);
+		 * 
+		 * flatFileItemReader.setLineMapper(defaultLineMapper);
+		 * flatFileItemReader.setLinesToSkip(1);
 		 */
-		
-		//Alternative code
-		DefaultLineMapper<StudentCsv> defaultLineMapper = new DefaultLineMapper<StudentCsv>();
-		
-		DelimitedLineTokenizer delimitedLineTokenizer = new DelimitedLineTokenizer();	
-		delimitedLineTokenizer.setNames("id", "last_name", "first_name", "email");
-		delimitedLineTokenizer.setDelimiter(DELIMITER_COMMA);
-		
-		defaultLineMapper.setLineTokenizer(delimitedLineTokenizer);
-		
-		BeanWrapperFieldSetMapper<StudentCsv> fieldSetMapper = new BeanWrapperFieldSetMapper<StudentCsv>();
-		fieldSetMapper.setTargetType(StudentCsv.class);
-		
-		defaultLineMapper.setFieldSetMapper(fieldSetMapper);
-		
-		flatFileItemReader.setLineMapper(defaultLineMapper);
-		//flatFileItemReader.setLinesToSkip(1);
-		
+
 		flatFileItemReader.setLinesToSkip(1);
-		
+
 		return flatFileItemReader;
 	}
 
-	
-	
 }
