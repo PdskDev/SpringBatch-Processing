@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		+ "com.nadetdev.springbatch.reader, com.nadetdev.springbatch.processor, com.nadetdev.springbatch.writer, "
 		+ "com.nadetdev.springbatch.controller;"})
 @EnableAsync
-//@EnableScheduling
+@EnableScheduling
 public class SpringBatchTutoApplication {
 
 	public static void main(String[] args) {

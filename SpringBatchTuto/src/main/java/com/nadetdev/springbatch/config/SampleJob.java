@@ -5,6 +5,7 @@ import java.io.File;
 import com.nadetdev.springbatch.listener.FirstJobListener;
 import com.nadetdev.springbatch.listener.FirstStepListener;
 import com.nadetdev.springbatch.model.StudentCsv;
+import com.nadetdev.springbatch.model.StudentJson;
 import com.nadetdev.springbatch.processor.FirstItemProcessor;
 import com.nadetdev.springbatch.reader.FirstItemReader;
 import com.nadetdev.springbatch.service.SecondTasklet;
@@ -20,17 +21,18 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.PathResource;
+
 
 @Configuration
 public class SampleJob {
@@ -100,9 +102,12 @@ public class SampleJob {
 
 	private Step firstChunckStep() {
 
-		return setBuilderFactory.get("First Chunk Step").<StudentCsv, StudentCsv>chunk(3)
+		return setBuilderFactory.get("First Chunk Step")
+				//.<StudentCsv, StudentCsv>chunk(3)
+				.<StudentJson, StudentJson>chunk(3)
 				// .reader(firstItemReader)
-				.reader(flatFileItemReader(null))
+				//.reader(flatFileItemReader(null))
+				.reader(jsonItemReader(null))
 				// .processor(firstItemProcessor)
 				.writer(firstItemWriter).build();
 	}
@@ -163,6 +168,23 @@ public class SampleJob {
 		flatFileItemReader.setLinesToSkip(1);
 
 		return flatFileItemReader;
+	}
+	
+	@StepScope
+	@Bean
+	public JsonItemReader<StudentJson> jsonItemReader(
+			@Value("#{jobParameters['inputFileJson']}") FileSystemResource jsonResourceFile) {
+		
+		JsonItemReader<StudentJson> jsonItemReader = new JsonItemReader<StudentJson>();
+		
+		jsonItemReader.setResource(jsonResourceFile);
+		jsonItemReader.setJsonObjectReader(
+				new JacksonJsonObjectReader<>(StudentJson.class));
+		
+		jsonItemReader.setMaxItemCount(5);
+		jsonItemReader.setCurrentItemCount(2);
+		
+		return jsonItemReader;
 	}
 
 }
