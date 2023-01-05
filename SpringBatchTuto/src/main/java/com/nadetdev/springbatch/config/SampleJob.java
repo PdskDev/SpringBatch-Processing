@@ -116,11 +116,13 @@ public class SampleJob {
 		return setBuilderFactory.get("First Chunk Step")
 				//.<StudentCsv, StudentCsv>chunk(3)
 				//.<StudentJson, StudentJson>chunk(3)
-				.<StudentXml, StudentXml>chunk(3)
+				//.<StudentXml, StudentXml>chunk(3)
+				.<StudentJdbc, StudentJdbc>chunk(3)
 				// .reader(firstItemReader)
 				//.reader(flatFileItemReader(null))
 				//.reader(jsonItemReader(null))
-				.reader(staxEventItemReader(null))
+				//.reader(staxEventItemReader(null))
+				.reader(jdbcCursorItemReader())
 				// .processor(firstItemProcessor)
 				.writer(firstItemWriter).build();
 	}
@@ -225,7 +227,7 @@ public class SampleJob {
 		
 		jdbcCursorItemReader.setDataSource(dataSource);
 		jdbcCursorItemReader.setSql(
-				"select id, first_name as firstName, last_name as lastName, email");
+				"select id, first_name as firstName, last_name as lastName, email from student");
 		
 		jdbcCursorItemReader.setRowMapper(
 				new BeanPropertyRowMapper<StudentJdbc>(){
@@ -233,6 +235,9 @@ public class SampleJob {
 					setMappedClass(StudentJdbc.class);
 				}
 				});
+		
+		jdbcCursorItemReader.setCurrentItemCount(2);
+		jdbcCursorItemReader.setMaxItemCount(10);
 		
 		return jdbcCursorItemReader;
 	}
