@@ -1,5 +1,6 @@
 package com.nadetdev.springbatch.model;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "student")
@@ -42,6 +43,7 @@ public class StudentXml {
 	}
 
 
+	@XmlElement(name = "f_n")
 	public String getFirstName() {
 		return firstName;
 	}
