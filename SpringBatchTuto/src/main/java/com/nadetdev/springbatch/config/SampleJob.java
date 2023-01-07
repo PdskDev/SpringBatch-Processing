@@ -8,10 +8,12 @@ import com.nadetdev.springbatch.listener.FirstStepListener;
 import com.nadetdev.springbatch.model.StudentCsv;
 import com.nadetdev.springbatch.model.StudentJdbc;
 import com.nadetdev.springbatch.model.StudentJson;
+import com.nadetdev.springbatch.model.StudentResponse;
 import com.nadetdev.springbatch.model.StudentXml;
 import com.nadetdev.springbatch.processor.FirstItemProcessor;
 import com.nadetdev.springbatch.reader.FirstItemReader;
 import com.nadetdev.springbatch.service.SecondTasklet;
+import com.nadetdev.springbatch.service.StudentService;
 import com.nadetdev.springbatch.writer.FirstItemWriter;
 
 import org.springframework.batch.core.Job;
@@ -23,6 +25,7 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.item.adapter.ItemReaderAdapter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
@@ -72,6 +75,9 @@ public class SampleJob {
 
 	@Autowired
 	private FirstItemWriter firstItemWriter;
+	
+	@Autowired
+	private StudentService studentService;
 	
 	/*
 	 * @Autowired private DataSource dataSource;
@@ -134,12 +140,14 @@ public class SampleJob {
 				//.<StudentCsv, StudentCsv>chunk(3)
 				//.<StudentJson, StudentJson>chunk(3)
 				//.<StudentXml, StudentXml>chunk(3)
-				.<StudentJdbc, StudentJdbc>chunk(3)
+				//.<StudentJdbc, StudentJdbc>chunk(3)
+				.<StudentResponse, StudentResponse>chunk(3)
 				// .reader(firstItemReader)
 				//.reader(flatFileItemReader(null))
 				//.reader(jsonItemReader(null))
 				//.reader(staxEventItemReader(null))
-				.reader(jdbcCursorItemReader())
+				//.reader(jdbcCursorItemReader())
+				.reader(itemReaderAdapter())
 				// .processor(firstItemProcessor)
 				.writer(firstItemWriter).build();
 	}
@@ -257,6 +265,17 @@ public class SampleJob {
 		//jdbcCursorItemReader.setMaxItemCount(10);
 		
 		return jdbcCursorItemReader;
+	}
+	
+	
+	public ItemReaderAdapter<StudentResponse> itemReaderAdapter() {
+		
+		ItemReaderAdapter<StudentResponse> itemReaderAdapter = new ItemReaderAdapter<>();
+		
+		itemReaderAdapter.setTargetObject(studentService);
+		itemReaderAdapter.setTargetMethod("getStudentOneByOne");
+		
+		return itemReaderAdapter;
 	}
 	
 	

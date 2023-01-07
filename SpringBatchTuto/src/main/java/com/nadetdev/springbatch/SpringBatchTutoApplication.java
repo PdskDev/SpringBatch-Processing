@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableBatchProcessing
 @ComponentScan({"com.nadetdev.springbatch.config", "com.nadetdev.springbatch.service, com.nadetdev.springbatch.listener,"
 		+ "com.nadetdev.springbatch.reader, com.nadetdev.springbatch.processor, com.nadetdev.springbatch.writer, "
-		+ "com.nadetdev.springbatch.controller;"})
+		+ "com.nadetdev.springbatch.controller, com.nadetdev.springbatch.service;"})
 @EnableAsync
 @EnableScheduling
 public class SpringBatchTutoApplication {
