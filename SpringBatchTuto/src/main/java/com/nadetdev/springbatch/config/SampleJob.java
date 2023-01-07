@@ -1,6 +1,5 @@
 package com.nadetdev.springbatch.config;
 
-import java.io.File;
 
 import javax.sql.DataSource;
 
@@ -35,8 +34,11 @@ import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -71,8 +73,23 @@ public class SampleJob {
 	@Autowired
 	private FirstItemWriter firstItemWriter;
 	
-	@Autowired
-	private DataSource dataSource;
+	/*
+	 * @Autowired private DataSource dataSource;
+	 */
+	
+	
+	@Bean
+	@Primary
+	@ConfigurationProperties(prefix = "spring.datasource")
+	public DataSource dataSource() {
+		return DataSourceBuilder.create().build();
+	}
+	
+	@Bean
+	@ConfigurationProperties(prefix = "spring.univertsitydatasource")
+	public DataSource univertsityDataSource() {
+		return DataSourceBuilder.create().build();
+	}
 
 	@Bean
 	public Job firstJob() {
@@ -225,7 +242,7 @@ public class SampleJob {
 		
 		JdbcCursorItemReader<StudentJdbc> jdbcCursorItemReader = new JdbcCursorItemReader<StudentJdbc>();
 		
-		jdbcCursorItemReader.setDataSource(dataSource);
+		jdbcCursorItemReader.setDataSource(univertsityDataSource());
 		jdbcCursorItemReader.setSql(
 				"select id, first_name as firstName, last_name as lastName, email from student");
 		
@@ -236,8 +253,8 @@ public class SampleJob {
 				}
 				});
 		
-		jdbcCursorItemReader.setCurrentItemCount(2);
-		jdbcCursorItemReader.setMaxItemCount(10);
+		//jdbcCursorItemReader.setCurrentItemCount(2);
+		//jdbcCursorItemReader.setMaxItemCount(10);
 		
 		return jdbcCursorItemReader;
 	}
