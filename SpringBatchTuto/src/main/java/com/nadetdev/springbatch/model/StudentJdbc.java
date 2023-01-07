@@ -1,9 +1,15 @@
 package com.nadetdev.springbatch.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class StudentJdbc {
 
 	private Long id;
+	
+	@JsonProperty("first_name")
 	private String firstName;
+	
+	@JsonProperty("last_name")
 	private String lastName;
 	private String email;
 

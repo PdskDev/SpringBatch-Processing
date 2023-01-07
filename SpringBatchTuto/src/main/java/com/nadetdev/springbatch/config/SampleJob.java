@@ -1,6 +1,10 @@
 package com.nadetdev.springbatch.config;
 
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Date;
+
 import javax.sql.DataSource;
 
 import com.nadetdev.springbatch.listener.FirstJobListener;
@@ -13,7 +17,7 @@ import com.nadetdev.springbatch.model.StudentXml;
 import com.nadetdev.springbatch.processor.FirstItemProcessor;
 import com.nadetdev.springbatch.reader.FirstItemReader;
 import com.nadetdev.springbatch.service.SecondTasklet;
-import com.nadetdev.springbatch.service.StudentService;
+//import com.nadetdev.springbatch.service.StudentService;
 import com.nadetdev.springbatch.writer.FirstItemWriter;
 
 import org.springframework.batch.core.Job;
@@ -27,12 +31,20 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.adapter.ItemReaderAdapter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.file.FlatFileFooterCallback;
+import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
+import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonFileItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.json.JsonObjectMarshaller;
 import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,8 +88,8 @@ public class SampleJob {
 	@Autowired
 	private FirstItemWriter firstItemWriter;
 	
-	@Autowired
-	private StudentService studentService;
+	//@Autowired
+	//private StudentService studentService;
 	
 	/*
 	 * @Autowired private DataSource dataSource;
@@ -141,15 +153,18 @@ public class SampleJob {
 				//.<StudentJson, StudentJson>chunk(3)
 				//.<StudentXml, StudentXml>chunk(3)
 				//.<StudentJdbc, StudentJdbc>chunk(3)
-				.<StudentResponse, StudentResponse>chunk(3)
+				.<StudentJdbc, StudentJdbc>chunk(3)
 				// .reader(firstItemReader)
 				//.reader(flatFileItemReader(null))
 				//.reader(jsonItemReader(null))
 				//.reader(staxEventItemReader(null))
-				//.reader(jdbcCursorItemReader())
-				.reader(itemReaderAdapter())
+				.reader(jdbcCursorItemReader())
+				//.reader(itemReaderAdapter())
 				// .processor(firstItemProcessor)
-				.writer(firstItemWriter).build();
+				//.writer(firstItemWriter)
+				//.writer(flatFileItemWriter(null))
+				.writer(jsonFileItemWriter(null))
+				.build();
 	}
 
 	@StepScope
@@ -268,16 +283,68 @@ public class SampleJob {
 	}
 	
 	
-	public ItemReaderAdapter<StudentResponse> itemReaderAdapter() {
+	/*//API Resource Reader
+	 * public ItemReaderAdapter<StudentResponse> itemReaderAdapter() {
+	 * 
+	 * ItemReaderAdapter<StudentResponse> itemReaderAdapter = new
+	 * ItemReaderAdapter<>();
+	 * 
+	 * itemReaderAdapter.setTargetObject(studentService);
+	 * itemReaderAdapter.setTargetMethod("getStudentOneByOne");
+	 * itemReaderAdapter.setArguments(new Object[] {1L, "Test"});
+	 * 
+	 * return itemReaderAdapter; }
+	 */
+	
+	
+	@StepScope
+	@Bean
+	public FlatFileItemWriter<StudentJdbc> flatFileItemWriter(
+			@Value("#{jobParameters['outputFile']}") FileSystemResource csvResourceFile) {
 		
-		ItemReaderAdapter<StudentResponse> itemReaderAdapter = new ItemReaderAdapter<>();
+		FlatFileItemWriter<StudentJdbc> flatFileItemWriter = new FlatFileItemWriter<StudentJdbc>();
 		
-		itemReaderAdapter.setTargetObject(studentService);
-		itemReaderAdapter.setTargetMethod("getStudentOneByOne");
-		itemReaderAdapter.setArguments(new Object[] {1L, "Test"});
+		flatFileItemWriter.setResource(csvResourceFile);
 		
-		return itemReaderAdapter;
+		flatFileItemWriter.setHeaderCallback(new FlatFileHeaderCallback() {
+			
+			@Override
+			public void writeHeader(Writer writer) throws IOException {
+				writer.write("Id,First Name,Last Name,Email");
+			}
+		});
+		
+		flatFileItemWriter.setLineAggregator(new DelimitedLineAggregator<StudentJdbc>() {
+			{ 
+				//setDelimiter("|");
+				setFieldExtractor(new BeanWrapperFieldExtractor<StudentJdbc>() {
+					{ 
+						setNames(new String[] {"id", "firstName", "lastName", "email"});
+					}
+				});
+			}
+		});
+		
+		flatFileItemWriter.setFooterCallback(new FlatFileFooterCallback() {
+			@Override
+			public void writeFooter(Writer writer) throws IOException {
+				writer.write("Created @ " + new Date());
+			}
+		});
+		return flatFileItemWriter;
 	}
+	
+	@StepScope
+	@Bean
+	public JsonFileItemWriter<StudentJdbc> jsonFileItemWriter(
+			@Value("#{jobParameters['outputFile']}") FileSystemResource jsonResourceFile) {
+		
+		JsonFileItemWriter<StudentJdbc> jsonFileItemWrite = new JsonFileItemWriter<>(jsonResourceFile, 
+				new JacksonJsonObjectMarshaller<StudentJdbc>());
+		
+		return jsonFileItemWrite;
+	}
+	
 	
 	
 	
