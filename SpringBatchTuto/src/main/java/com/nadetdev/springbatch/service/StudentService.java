@@ -29,7 +29,9 @@ public class StudentService {
 		return listStudent;
 	}
 	
-	public StudentResponse getStudentOneByOne() {
+	public StudentResponse getStudentOneByOne(long id, String name) {
+		
+		System.out.println("id = " + id + " name = " + name);
 		
 		if(listStudent == null) {
 			restCallToGetStudents();
