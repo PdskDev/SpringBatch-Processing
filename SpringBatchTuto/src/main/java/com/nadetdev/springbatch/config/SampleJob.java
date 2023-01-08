@@ -30,6 +30,7 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.adapter.ItemReaderAdapter;
+import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileFooterCallback;
@@ -155,19 +156,19 @@ public class SampleJob {
 				//.<StudentJson, StudentJson>chunk(3)
 				//.<StudentXml, StudentXml>chunk(3)
 				//.<StudentJdbc, StudentJdbc>chunk(3)
-				.<StudentJdbc, StudentJdbc>chunk(3)
+				.<StudentCsv, StudentCsv>chunk(3)
 				// .reader(firstItemReader)
-				//.reader(flatFileItemReader(null))
+				.reader(flatFileItemReader(null))
 				//.reader(jsonItemReader(null))
 				//.reader(staxEventItemReader(null))
-				.reader(jdbcCursorItemReader())
+				//.reader(jdbcCursorItemReader())
 				//.reader(itemReaderAdapter())
 				//.processor(firstItemProcessor)
 				//.writer(firstItemWriter)
 				//.writer(flatFileItemWriter(null))
 				//.writer(jsonFileItemWriter(null))
-				.writer(staxEventItemWriter(null))
-				//.writer(jdbcBatchItemWriter())
+				//.writer(staxEventItemWriter(null))
+				.writer(jdbcBatchItemWriter())
 				.build();
 	}
 
@@ -366,6 +367,22 @@ public class SampleJob {
 		
 		return staxEventItemWriter;
 	}
+	
+	@StepScope
+	@Bean
+	public JdbcBatchItemWriter<StudentCsv> jdbcBatchItemWriter(){
+		
+		JdbcBatchItemWriter<StudentCsv> jdbcBatchItemWriter = new JdbcBatchItemWriter<StudentCsv>();
+		
+		jdbcBatchItemWriter.setDataSource(univertsityDataSource());
+		jdbcBatchItemWriter.setSql(
+				"insert into student(id, first_name, last_name, email) values (:id, :firstName, :lastName, :email)");
+		
+		jdbcBatchItemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<StudentCsv>());
+		
+		return jdbcBatchItemWriter;
+	}
+	
 	
 	
 	
