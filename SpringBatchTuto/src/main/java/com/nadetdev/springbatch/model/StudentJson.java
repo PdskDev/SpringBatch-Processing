@@ -1,9 +1,9 @@
 package com.nadetdev.springbatch.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+//import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class StudentJson {
 	
 	private Long id;
@@ -11,8 +11,8 @@ public class StudentJson {
 	@JsonProperty("first_name")
 	private String firstName;
 	
-	
-	//private String lastName;
+	@JsonProperty("last_name")
+	private String lastName;
 	
 	private String email;
 	
@@ -51,14 +51,14 @@ public class StudentJson {
 	}
 
 
-//	public String getLastName() {
-//		return lastName;
-//	}
-//
-//
-//	public void setLastName(String lastName) {
-//		this.lastName = lastName;
-//	}
+	public String getLastName() {
+		return lastName;
+	}
+
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
 
 	public String getEmail() {
@@ -79,7 +79,7 @@ public class StudentJson {
 		builder.append(", firstName=");
 		builder.append(firstName);
 		builder.append(", lastName=");
-		//builder.append(lastName);
+		builder.append(lastName);
 		builder.append(", email=");
 		builder.append(email);
 		builder.append("]");

@@ -43,7 +43,7 @@ public class StudentXml {
 	}
 
 
-	@XmlElement(name = "f_n")
+	@XmlElement(name = "frist_name")
 	public String getFirstName() {
 		return firstName;
 	}
@@ -53,7 +53,7 @@ public class StudentXml {
 		this.firstName = firstName;
 	}
 
-
+	@XmlElement(name = "last_name")
 	public String getLastName() {
 		return lastName;
 	}

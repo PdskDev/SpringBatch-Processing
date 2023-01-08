@@ -1,15 +1,19 @@
 package com.nadetdev.springbatch.model;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@XmlRootElement(name = "student")
 public class StudentJdbc {
 
 	private Long id;
 	
-	@JsonProperty("first_name")
+	//@JsonProperty("first_name")
 	private String firstName;
 	
-	@JsonProperty("last_name")
+	//@JsonProperty("last_name")
 	private String lastName;
 	private String email;
 
@@ -40,6 +44,7 @@ public class StudentJdbc {
 		this.id = id;
 	}
 
+	@XmlElement(name = "frist_name")
 	public String getFirstName() {
 		return firstName;
 	}
@@ -48,6 +53,7 @@ public class StudentJdbc {
 		this.firstName = firstName;
 	}
 
+	@XmlElement(name = "last_name")
 	public String getLastName() {
 		return lastName;
 	}
