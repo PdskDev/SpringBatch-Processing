@@ -1,9 +1,8 @@
 [
- {"id":1,"firstName":"Doe","lastName":"John","email":"jdoe@example.com"},
- {"id":2,"firstName":"Smith","lastName":"Jane","email":"jsmith@example.com"},
- {"id":3,"firstName":"Thomas","lastName":"Sarah","email":"sthomas@example.com"},
- {"id":5,"firstName":"Davis","lastName":"Mike","email":"mdavis@example.com"},
- {"id":7,"firstName":"Garcia","lastName":"Jessica","email":"jgarcia@example.com"},
- {"id":8,"firstName":"Clark","lastName":"Fred","email":"fclark@example.com"},
- {"id":9,"firstName":"Lopez","lastName":"Bob","email":"blopez@example.com"}
+ {"id":1,"email":"jdoe@example.com","first_name":"Doe","last_name":"John"},
+ {"id":2,"email":"jsmith@example.com","first_name":"Smith","last_name":"Jane"},
+ {"id":5,"email":"mdavis@example.com","first_name":"Davis","last_name":"Mike"},
+ {"id":7,"email":"jgarcia@example.com","first_name":"Garcia","last_name":"Jessica"},
+ {"id":8,"email":"fclark@example.com","first_name":"Clark","last_name":"Fred"},
+ {"id":9,"email":"blopez@example.com","first_name":"Lopez","last_name":"Bob"}
 ]

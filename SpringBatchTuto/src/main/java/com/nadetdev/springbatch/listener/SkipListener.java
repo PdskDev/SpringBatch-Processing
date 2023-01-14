@@ -5,9 +5,11 @@ import java.io.FileWriter;
 import java.util.Date;
 
 import com.nadetdev.springbatch.model.StudentCsv;
+import com.nadetdev.springbatch.model.StudentJson;
 
 import org.springframework.batch.core.annotation.OnSkipInProcess;
 import org.springframework.batch.core.annotation.OnSkipInRead;
+import org.springframework.batch.core.annotation.OnSkipInWrite;
 import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +32,15 @@ public class SkipListener {
 			createFile(
 					"D:\\Devs\\LocalGitRepository\\SpringBatch-Processing-Udemy\\SpringBatchTuto\\ChunkJob\\FirstChunkStep\\processor\\SkipInProcess.txt",
 					studentCsv.toString());
+	}
+	
+	
+	@OnSkipInWrite
+	public void skipInWriter(StudentJson studentJson, Throwable th) {
+		
+		createFile(
+				"D:\\Devs\\LocalGitRepository\\SpringBatch-Processing-Udemy\\SpringBatchTuto\\ChunkJob\\FirstChunkStep\\writer\\SkipInWrite.txt",
+				studentJson.toString());
 	}
 
 	public void createFile(String filePath, String data) {

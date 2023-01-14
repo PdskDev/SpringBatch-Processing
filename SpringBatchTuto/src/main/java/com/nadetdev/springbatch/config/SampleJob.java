@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 import javax.batch.api.chunk.listener.ItemWriteListener;
 import javax.sql.DataSource;
@@ -356,8 +357,21 @@ public class SampleJob {
 	public JsonFileItemWriter<StudentJson> jsonFileItemWriter(
 			@Value("#{jobParameters['outputFileJson']}") FileSystemResource jsonResourceFile) {
 
-		JsonFileItemWriter<StudentJson> jsonFileItemWrite = new JsonFileItemWriter<>(jsonResourceFile,
-				new JacksonJsonObjectMarshaller<StudentJson>());
+		JsonFileItemWriter<StudentJson> jsonFileItemWrite = new JsonFileItemWriter<StudentJson>(jsonResourceFile,
+				new JacksonJsonObjectMarshaller<StudentJson>()) {
+			
+			@Override
+			public String doWrite(List<? extends StudentJson> items) {
+
+				items.stream().forEach(item -> {
+					if(item.getId() == 3) {
+						
+						throw new NullPointerException();
+					}
+				});
+				return super.doWrite(items);
+			}
+		};
 
 		return jsonFileItemWrite;
 	}

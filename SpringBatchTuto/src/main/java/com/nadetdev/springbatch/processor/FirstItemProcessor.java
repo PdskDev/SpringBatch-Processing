@@ -18,7 +18,10 @@ public class FirstItemProcessor implements ItemProcessor<StudentCsv, StudentJson
 	public StudentJson process(StudentCsv item) throws Exception {
 		
 		System.out.println("Inside Item Processor");
-		// return Long.valueOf(item);
+	
+		if(item.getId() == 3) {
+			throw new NullPointerException();
+		}
 
 		StudentJson studentJson = new StudentJson();
 
