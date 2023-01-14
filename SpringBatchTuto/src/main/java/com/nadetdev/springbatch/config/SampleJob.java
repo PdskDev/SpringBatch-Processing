@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 
 import com.nadetdev.springbatch.listener.FirstJobListener;
 import com.nadetdev.springbatch.listener.FirstStepListener;
+import com.nadetdev.springbatch.listener.SkipListener;
 import com.nadetdev.springbatch.model.StudentCsv;
 import com.nadetdev.springbatch.model.StudentJdbc;
 import com.nadetdev.springbatch.model.StudentJson;
@@ -103,6 +104,9 @@ public class SampleJob {
 	/*
 	 * @Autowired private DataSource dataSource;
 	 */
+	
+	@Autowired
+	SkipListener skipListener;
 
 	@Bean
 	@Primary
@@ -182,6 +186,7 @@ public class SampleJob {
 				 //.skipLimit(2)
 				 //.skipLimit(Integer.MAX_VALUE)
 				 .skipPolicy(new AlwaysSkipItemSkipPolicy())
+				 .listener(skipListener)
 				.build();
 	}
 
