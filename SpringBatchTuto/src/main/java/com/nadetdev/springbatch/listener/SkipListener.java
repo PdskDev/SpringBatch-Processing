@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.Date;
 
+import com.nadetdev.springbatch.model.StudentCsv;
+
+import org.springframework.batch.core.annotation.OnSkipInProcess;
 import org.springframework.batch.core.annotation.OnSkipInRead;
 import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.stereotype.Component;
@@ -18,8 +21,15 @@ public class SkipListener {
 			createFile(
 					"D:\\Devs\\LocalGitRepository\\SpringBatch-Processing-Udemy\\SpringBatchTuto\\ChunkJob\\FirstChunkStep\\reader\\SkipInRead.txt",
 					((FlatFileParseException) th).getInput());
-
 		}
+	}
+
+	@OnSkipInProcess
+	public void skipInProcess(StudentCsv studentCsv, Throwable th) {
+		
+			createFile(
+					"D:\\Devs\\LocalGitRepository\\SpringBatch-Processing-Udemy\\SpringBatchTuto\\ChunkJob\\FirstChunkStep\\processor\\SkipInProcess.txt",
+					studentCsv.toString());
 	}
 
 	public void createFile(String filePath, String data) {

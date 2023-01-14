@@ -172,7 +172,7 @@ public class SampleJob {
 				// .reader(staxEventItemReader(null))
 				// .reader(jdbcCursorItemReader())
 				// .reader(itemReaderAdapter())
-				// .processor(firstItemProcessor)
+				.processor(firstItemProcessor)
 				// .writer(firstItemWriter)
 				// .writer(flatFileItemWriter(null))
 				 .writer(jsonFileItemWriter(null))
