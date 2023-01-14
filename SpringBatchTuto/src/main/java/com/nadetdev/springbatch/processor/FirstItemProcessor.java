@@ -20,6 +20,7 @@ public class FirstItemProcessor implements ItemProcessor<StudentCsv, StudentJson
 		System.out.println("Inside Item Processor");
 	
 		if(item.getId() == 3) {
+			
 			throw new NullPointerException();
 		}
 
