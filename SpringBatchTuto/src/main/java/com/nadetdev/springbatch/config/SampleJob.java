@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import com.nadetdev.springbatch.listener.FirstJobListener;
 import com.nadetdev.springbatch.listener.FirstStepListener;
 import com.nadetdev.springbatch.listener.SkipListener;
+import com.nadetdev.springbatch.listener.SkipListenerImpl;
 import com.nadetdev.springbatch.model.StudentCsv;
 import com.nadetdev.springbatch.model.StudentJdbc;
 import com.nadetdev.springbatch.model.StudentJson;
@@ -101,6 +102,9 @@ public class SampleJob {
 
 	@Autowired
 	private StudentService studentService;
+	
+	@Autowired
+	private SkipListenerImpl skipListenerImpl;
 
 	/*
 	 * @Autowired private DataSource dataSource;
@@ -187,7 +191,8 @@ public class SampleJob {
 				 //.skipLimit(2)
 				 //.skipLimit(Integer.MAX_VALUE)
 				 .skipPolicy(new AlwaysSkipItemSkipPolicy())
-				 .listener(skipListener)
+				 //.listener(skipListener)
+				 .listener(skipListenerImpl)
 				.build();
 	}
 
@@ -364,7 +369,7 @@ public class SampleJob {
 			public String doWrite(List<? extends StudentJson> items) {
 
 				items.stream().forEach(item -> {
-					if(item.getId() == 3) {
+					if(item.getId() == 1) {
 						
 						throw new NullPointerException();
 					}

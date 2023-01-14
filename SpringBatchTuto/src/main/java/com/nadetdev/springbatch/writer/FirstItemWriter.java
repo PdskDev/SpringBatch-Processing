@@ -26,7 +26,6 @@ public class FirstItemWriter implements ItemWriter<StudentJson> {
 	//public void write(List<? extends StudentResponse> items) throws Exception {
 		System.out.println("Inside Item Writer");
 		items.stream().forEach(System.out::println);
-
 	}
 
 }
