@@ -31,6 +31,7 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.adapter.ItemReaderAdapter;
 import org.springframework.batch.item.adapter.ItemWriterAdapter;
@@ -42,6 +43,7 @@ import org.springframework.batch.item.file.FlatFileFooterCallback;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
@@ -159,7 +161,7 @@ public class SampleJob {
 				// .<StudentJson, StudentJson>chunk(3)
 				// .<StudentXml, StudentXml>chunk(3)
 				// .<StudentJdbc, StudentJdbc>chunk(3)
-				.<StudentCsv, StudentCsv>chunk(3)
+				.<StudentCsv, StudentJson>chunk(3)
 				// .reader(firstItemReader)
 				.reader(flatFileItemReader(null))
 				// .reader(jsonItemReader(null))
@@ -169,11 +171,17 @@ public class SampleJob {
 				// .processor(firstItemProcessor)
 				// .writer(firstItemWriter)
 				// .writer(flatFileItemWriter(null))
-				// .writer(jsonFileItemWriter(null))
+				 .writer(jsonFileItemWriter(null))
 				// .writer(staxEventItemWriter(null))
 				// .writer(jdbcBatchItemWriter1())
 				//.writer(jdbcBatchItemWriter2())
-				.writer(itemWriterAdapter())
+				//.writer(itemWriterAdapter())
+				 .faultTolerant()
+				 .skip(Throwable.class)
+				 //.skip(NullPointerException.class)
+				 //.skipLimit(2)
+				 //.skipLimit(Integer.MAX_VALUE)
+				 .skipPolicy(new AlwaysSkipItemSkipPolicy())
 				.build();
 	}
 
@@ -341,7 +349,7 @@ public class SampleJob {
 	@StepScope
 	@Bean
 	public JsonFileItemWriter<StudentJson> jsonFileItemWriter(
-			@Value("#{jobParameters['outputFile']}") FileSystemResource jsonResourceFile) {
+			@Value("#{jobParameters['outputFileJson']}") FileSystemResource jsonResourceFile) {
 
 		JsonFileItemWriter<StudentJson> jsonFileItemWrite = new JsonFileItemWriter<>(jsonResourceFile,
 				new JacksonJsonObjectMarshaller<StudentJson>());
@@ -409,9 +417,9 @@ public class SampleJob {
 	
 	
 	
-	public ItemWriterAdapter<StudentCsv> itemWriterAdapter() {
+	public ItemWriterAdapter<StudentJson> itemWriterAdapter() {
 
-		ItemWriterAdapter<StudentCsv> itemWriterAdapter = new ItemWriterAdapter<StudentCsv>();
+		ItemWriterAdapter<StudentJson> itemWriterAdapter = new ItemWriterAdapter<StudentJson>();
 
 		itemWriterAdapter.setTargetObject(studentService);
 		itemWriterAdapter.setTargetMethod("restCallToCreateStudent");
