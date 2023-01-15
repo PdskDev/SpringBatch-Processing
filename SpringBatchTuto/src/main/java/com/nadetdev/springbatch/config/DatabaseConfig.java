@@ -37,6 +37,7 @@ public class DatabaseConfig {
 	
 	
 	@Bean
+	@Primary
 	public EntityManagerFactory postgresEntityManagerFactory() {
 		
 		LocalContainerEntityManagerFactoryBean postgresLem = new LocalContainerEntityManagerFactoryBean();

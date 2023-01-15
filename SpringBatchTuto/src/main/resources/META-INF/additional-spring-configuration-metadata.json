@@ -28,5 +28,20 @@
     "name": "spring.univertsitydatasource.jdbc-url",
     "type": "java.lang.String",
     "description": "A description for 'spring.univertsitydatasource.jdbc-url'"
+  },
+  {
+    "name": "spring.postgresdatasource.jdbc-url",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.postgresdatasource.jdbc-url'"
+  },
+  {
+    "name": "spring.postgresdatasource.username",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.postgresdatasource.username'"
+  },
+  {
+    "name": "spring.postgresdatasource.password",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.postgresdatasource.password'"
   }
 ]}

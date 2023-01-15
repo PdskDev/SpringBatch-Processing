@@ -74,6 +74,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 @Configuration
@@ -116,7 +117,7 @@ public class SampleJob {
 	 */
 	
 	@Autowired
-	SkipListener skipListener;
+	private SkipListener skipListener;
 	
 	@Autowired
 	@Qualifier("dataSource")
@@ -137,6 +138,10 @@ public class SampleJob {
 	@Autowired
 	@Qualifier("postgresEntityManagerFactory")
 	private EntityManagerFactory postgresEntityManagerFactory;
+	
+	
+	@Autowired
+	private JpaTransactionManager jpaTransactionManager;
 
 	@Bean
 	public Job firstJob() {
@@ -203,13 +208,14 @@ public class SampleJob {
 				 .faultTolerant()
 				 .skip(Throwable.class)
 				 //.skip(NullPointerException.class)
-				 .skipLimit(100)
-				 //.skipLimit(Integer.MAX_VALUE)
+				 //.skipLimit(100)
+				 .skipLimit(Integer.MAX_VALUE)
 				 //.skipPolicy(new AlwaysSkipItemSkipPolicy())
 				 .retryLimit(3)
 				 .retry(Throwable.class)
 				 //.listener(skipListener)
 				 .listener(skipListenerImpl)
+				 .transactionManager(jpaTransactionManager)
 				.build();
 	}
 
