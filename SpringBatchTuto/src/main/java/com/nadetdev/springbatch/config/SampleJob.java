@@ -45,6 +45,7 @@ import org.springframework.batch.item.database.ItemPreparedStatementSetter;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.JpaCursorItemReader;
+import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.file.FlatFileFooterCallback;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -181,9 +182,11 @@ public class SampleJob {
 				// .<StudentJson, StudentJson>chunk(3)
 				// .<StudentXml, StudentXml>chunk(3)
 				// .<StudentJdbc, StudentJdbc>chunk(3)
-				.<StudentCsv, StudentJson>chunk(3)
+				//.<StudentCsv, StudentJson>chunk(3)
+				.<Student, com.nadetdev.springbatch.entity.mysql.Student>chunk(3)
 				// .reader(firstItemReader)
-				.reader(flatFileItemReader(null))
+				//.reader(flatFileItemReader(null))
+				.reader(jpaCursorItemReader())
 				// .reader(jsonItemReader(null))
 				// .reader(staxEventItemReader(null))
 				// .reader(jdbcCursorItemReader())
@@ -191,7 +194,8 @@ public class SampleJob {
 				.processor(firstItemProcessor)
 				// .writer(firstItemWriter)
 				// .writer(flatFileItemWriter(null))
-				 .writer(jsonFileItemWriter(null))
+				//.writer(jsonFileItemWriter(null))
+				.writer(jpaItemWriter())
 				// .writer(staxEventItemWriter(null))
 				// .writer(jdbcBatchItemWriter1())
 				//.writer(jdbcBatchItemWriter2())
@@ -484,6 +488,14 @@ public class SampleJob {
 		jpaCursorItemReader.setQueryString("From Student");
 		
 		return jpaCursorItemReader;
+	}
+	
+	public JpaItemWriter<com.nadetdev.springbatch.entity.mysql.Student> jpaItemWriter() {
+		
+		JpaItemWriter<com.nadetdev.springbatch.entity.mysql.Student> jpaItemWriter = new JpaItemWriter<com.nadetdev.springbatch.entity.mysql.Student>();
+		jpaItemWriter.setEntityManagerFactory(mysqlEntityManagerFactory);
+		
+		return jpaItemWriter;
 	}
 
 }

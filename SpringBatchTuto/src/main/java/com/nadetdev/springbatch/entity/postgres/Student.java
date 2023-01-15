@@ -106,12 +106,12 @@ public class Student {
 	}
 
 
-	public String isActive() {
+	public String getIsActive() {
 		return isActive;
 	}
 
 
-	public void setActive(String isActive) {
+	public void setIsActive(String isActive) {
 		this.isActive = isActive;
 	}
 
