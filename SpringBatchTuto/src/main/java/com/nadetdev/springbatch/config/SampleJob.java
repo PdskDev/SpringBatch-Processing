@@ -8,8 +8,10 @@ import java.util.Date;
 import java.util.List;
 
 import javax.batch.api.chunk.listener.ItemWriteListener;
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import com.nadetdev.springbatch.entity.postgres.Student;
 import com.nadetdev.springbatch.listener.FirstJobListener;
 import com.nadetdev.springbatch.listener.FirstStepListener;
 import com.nadetdev.springbatch.listener.SkipListener;
@@ -42,6 +44,7 @@ import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourc
 import org.springframework.batch.item.database.ItemPreparedStatementSetter;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.file.FlatFileFooterCallback;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -61,6 +64,7 @@ import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.batch.item.xml.StaxEventItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -112,19 +116,26 @@ public class SampleJob {
 	
 	@Autowired
 	SkipListener skipListener;
-
-	@Bean
-	@Primary
-	@ConfigurationProperties(prefix = "spring.datasource")
-	public DataSource dataSource() {
-		return DataSourceBuilder.create().build();
-	}
-
-	@Bean
-	@ConfigurationProperties(prefix = "spring.univertsitydatasource")
-	public DataSource univertsityDataSource() {
-		return DataSourceBuilder.create().build();
-	}
+	
+	@Autowired
+	@Qualifier("dataSource")
+	private DataSource dataSource;
+	
+	@Autowired
+	@Qualifier("univertsityDataSource")
+	private DataSource univertsityDataSource;
+	
+	@Autowired
+	@Qualifier("postgresDataSource")
+	private DataSource postgresDataSource;
+	
+	@Autowired
+	@Qualifier("mysqlEntityManagerFactory")
+	private EntityManagerFactory mysqlEntityManagerFactory;
+	
+	@Autowired
+	@Qualifier("postgresEntityManagerFactory")
+	private EntityManagerFactory postgresEntityManagerFactory;
 
 	@Bean
 	public Job firstJob() {
@@ -293,7 +304,7 @@ public class SampleJob {
 
 		JdbcCursorItemReader<StudentJdbc> jdbcCursorItemReader = new JdbcCursorItemReader<StudentJdbc>();
 
-		jdbcCursorItemReader.setDataSource(univertsityDataSource());
+		jdbcCursorItemReader.setDataSource(univertsityDataSource);
 		jdbcCursorItemReader.setSql("select id, first_name as firstName, last_name as lastName, email from student");
 
 		jdbcCursorItemReader.setRowMapper(new BeanPropertyRowMapper<StudentJdbc>() {
@@ -408,7 +419,7 @@ public class SampleJob {
 
 		JdbcBatchItemWriter<StudentCsv> jdbcBatchItemWriter = new JdbcBatchItemWriter<StudentCsv>();
 
-		jdbcBatchItemWriter.setDataSource(univertsityDataSource());
+		jdbcBatchItemWriter.setDataSource(univertsityDataSource);
 		jdbcBatchItemWriter.setSql(
 				"insert into student(id, first_name, last_name, email) values (:id, :firstName, :lastName, :email)");
 
@@ -423,7 +434,7 @@ public class SampleJob {
 
 		JdbcBatchItemWriter<StudentCsv> jdbcBatchItemWriter = new JdbcBatchItemWriter<StudentCsv>();
 
-		jdbcBatchItemWriter.setDataSource(univertsityDataSource());
+		jdbcBatchItemWriter.setDataSource(univertsityDataSource);
 		jdbcBatchItemWriter.setSql("insert into student(id, first_name, last_name, email) values (?, ?, ?, ?)");
 
 		jdbcBatchItemWriter.setItemPreparedStatementSetter(new ItemPreparedStatementSetter<StudentCsv>() {
@@ -465,5 +476,14 @@ public class SampleJob {
 	 * 
 	 * return jdbcBatchItemWriter; }
 	 */
+	
+	public JpaCursorItemReader<Student> jpaCursorItemReader(){
+		JpaCursorItemReader<Student> jpaCursorItemReader = new JpaCursorItemReader<Student>();
+		
+		jpaCursorItemReader.setEntityManagerFactory(postgresEntityManagerFactory);
+		jpaCursorItemReader.setQueryString("From Student");
+		
+		return jpaCursorItemReader;
+	}
 
 }
